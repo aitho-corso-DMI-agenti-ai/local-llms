@@ -12,3 +12,7 @@ class GameState:
 
     def add_message(self, message: GameMessage):
         self.messages.append(message)
+        
+    def __str__(self):
+        messages_str = '\n'.join(str(message) for message in self.messages)
+        return f"GameState(messages={messages_str})"

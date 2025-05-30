@@ -1,17 +1,21 @@
 from ollama import chat, Message
 
 from app.game_message import GameMessage, GameState
+from app.prompting import load_prompt
 
 class AgentPlayer:
-    def __init__(self, model, name):
+    def __init__(self, model, name, game_role="player"):
         self.model = model
+        self.name = name
+
         self.system_message = {
             "role": "system",
-            "content": 
-            f"Your name is {name}."
-            "You are playing a Spyfall gameand you are the Spy."
-            "Be brief in your answers."
-            "Listen to the conversation and reply to questions acting like you know where you are.",
+            "content": load_prompt("general_system"),
+        }
+
+        self.game_role_message = {
+            "role": "system",
+            "content": load_prompt(f"{game_role}_system"),
         }
 
     def __format_conversation_prompt(self, game_messages: list[GameMessage]) -> Message:
@@ -27,6 +31,7 @@ class AgentPlayer:
             model="gemma3:1b",
             messages=[
                 self.system_message,
+                self.game_role_message,
                 self.__format_conversation_prompt(game_state.messages),
             ]
         ) 

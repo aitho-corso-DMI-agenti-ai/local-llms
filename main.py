@@ -1,21 +1,21 @@
-from ollama import chat
+from app.agent_player import AgentPlayer
+from app.game_message import GameState, GameMessage
 
 
 def main():
-    response = chat(
-        model="gemma3:1b",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are playing a Spyfall game and you are the Spy. Be brief in your answers. Listen to the conversation and reply to questions acting like you know where you are.",
-            },
-            {
-                "role": "user",
-                "content": "Do you believe that the place we are is warm?",
-            },
-        ],
+    game_state = GameState()
+
+    player = AgentPlayer("gemma3:1b", "Stefano")
+
+    game_state.add_message(
+        GameMessage(
+            "Lorenzo", "Stefano, do you believe that the place we are is warm?"
+        )
     )
+
+    response = player.reply_to(game_state)
     print(response.message.content)
+
 
 
 if __name__ == "__main__":

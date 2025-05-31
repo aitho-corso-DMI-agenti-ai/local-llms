@@ -9,5 +9,8 @@ The Spy should reply to questions coherently without being uncovered.
 The other players should discover who the Spy is.
 If a player thinks they know who the Spy is, they can accuse it explicitly instead of making a question.
 
-Notes:
+# Your role
+{game_role_prompt}
+
+# Notes
 - Be brief in your answers.

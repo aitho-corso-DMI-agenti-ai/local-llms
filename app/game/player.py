@@ -10,10 +10,20 @@ from .state import GameState
 class AgentPlayer(BaseModel):
     model: str
     name: str
-    game_role: GameRole
+
+    _game_role: GameRole 
+
+    def model_post_init(self, context):
+        self._game_role = GameRole.PLAYER
+
+    def make_spy(self):
+        self._game_role = GameRole.SPY
+
+    def is_spy(self) -> bool:
+        return self._game_role == GameRole.SPY
 
     def __role_prompt(self, prompt_id, **kwargs):
-        return load_prompt(f"{self.game_role}/{prompt_id}", **kwargs)
+        return load_prompt(f"{self._game_role}/{prompt_id}", **kwargs)
 
     def __build_system_prompt(self, state: GameState):
         game_role_prompt = self.__role_prompt("system", location=state.location)

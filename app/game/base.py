@@ -2,18 +2,28 @@ import random
 from pydantic import BaseModel
 
 from .player import AgentPlayer
-from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole, GameResult, Location
+from .data import (
+    Player,
+    Question,
+    Answer,
+    SpyGuess,
+    PlayerGuess,
+    GameResult,
+    Location,
+)
 from .state import GameState
 
 
 class Game(BaseModel):
     players: dict[Player, AgentPlayer]
-    location: Location
+
+    _location: Location | None = None
+    _spy: Player | None
 
     def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
         spy = self.get_spy()
         guess: SpyGuess = spy.guess_location(state)
-        print(f"[Game] Spy guess: {guess}")
+        print(f"[Game] Player {spy.name} (Spy) guess: {guess}")
 
         if guess.guessed_location is not None:
             return guess
@@ -23,7 +33,7 @@ class Game(BaseModel):
     def ask_players_to_guess(self, state: GameState) -> PlayerGuess | None:
         for player_name in self.players:
             player = self.players[player_name]
-            if player.game_role == GameRole.SPY:
+            if player.is_spy():
                 continue
 
             guess: PlayerGuess = player.guess_spy(state)
@@ -56,13 +66,10 @@ class Game(BaseModel):
         state.print()
 
     def get_spy(self):
-        for player_name in self.players:
-            player = self.players[player_name]
-            if player.game_role == GameRole.SPY:
-                return player
+        return self.players[self._spy_name]
 
     def check_spy_guess(self, guess: SpyGuess) -> GameResult:
-        if guess.guessed_location == self.location:
+        if guess.guessed_location == self._location:
             return GameResult(spy_won=True)
         else:
             return GameResult(spy_won=False)
@@ -74,16 +81,20 @@ class Game(BaseModel):
             return GameResult(spy_won=True)
 
     def __print_info(self):
-        print("## Game info") 
+        print("## Game info")
         print(f"Players: {[str(player_name) for player_name in self.players.keys()]}")
-        print(f"Location: {str(self.location)}")
+        print(f"Spy: {self._spy_name}")
+        print(f"Location: {str(self._location)}")
 
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))
-        if self.location is None:
-            self.location = random.choice(list(Location))
+        self._spy_name = random.choice(list(self.players.keys()))
+        self.get_spy().make_spy()
 
-        state = GameState(location=self.location, questioner=first_questioner)
+        if self._location is None:
+            self._location = random.choice(list(Location))
+
+        state = GameState(location=self._location, questioner=first_questioner)
 
         self.__print_info()
 

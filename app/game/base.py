@@ -1,5 +1,5 @@
+import random
 from pydantic import BaseModel
-from langgraph.graph import StateGraph, START
 
 from .player import AgentPlayer
 from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole
@@ -8,32 +8,19 @@ from .state import GameState
 
 class Game(BaseModel):
     players: dict[Player, AgentPlayer]
+    location: str
 
-    _graph: any
-
-    def model_post_init(self, context):
-        graph_builder = StateGraph(GameState)
-
-        graph_builder.add_node("make_question", self.make_question)
-        graph_builder.add_node("answer", self.answer)
-        graph_builder.add_node("ask_spy_to_guess", self.ask_spy_to_guess)
-        graph_builder.add_node("ask_players_to_guess", self.ask_players_to_guess)
-
-        graph_builder.add_edge(START, "make_question")
-        graph_builder.add_edge("make_question", "answer")
-        graph_builder.add_edge("answer", "ask_spy_to_guess")
-        graph_builder.add_edge("ask_spy_to_guess", "ask_players_to_guess")
-        graph_builder.add_edge("ask_players_to_guess", "make_question")
-
-        self._graph = graph_builder.compile()
-
-    def ask_spy_to_guess(self, state: GameState) -> GameState:
+    def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
         spy = self.get_spy()
         guess: SpyGuess = spy.guess_location(state)
         print(f"[Game] Spy guess: {guess}")
-        return state
 
-    def ask_players_to_guess(self, state: GameState) -> GameState:
+        if guess.guessed_location is not None:
+            return guess
+        else:
+            return None
+
+    def ask_players_to_guess(self, state: GameState) -> PlayerGuess | None:
         for player_name in self.players:
             player = self.players[player_name]
             if player.game_role == GameRole.SPY:
@@ -42,18 +29,19 @@ class Game(BaseModel):
             guess: PlayerGuess = player.guess_spy(state)
             print(f"[Game] Player {player_name} guess: {guess}")
 
-        return state
+            if guess.alleged_spy is not None:
+                return guess
 
-    def make_question(self, state: GameState) -> GameState:
+        return None
+
+    def make_question(self, state: GameState):
         questioner = self.players[state.questioner]
         question: Question = questioner.make_question(state)
         print(f"[Game] Question from player {state.questioner}: {question}")
 
         state._question = question
 
-        return state
-
-    def answer(self, state: GameState) -> GameState:
+    def answer(self, state: GameState):
         questioner = self.players[state.questioner]
         player = self.players[state._question.to_player]
 
@@ -66,7 +54,6 @@ class Game(BaseModel):
         state.questioner = state._question.to_player
 
         state.print()
-        return state
 
     def get_spy(self):
         for player_name in self.players:
@@ -74,7 +61,18 @@ class Game(BaseModel):
             if player.game_role == GameRole.SPY:
                 return player
 
-    def play(self, location: str, first_player: Player):
-        self._graph.invoke(
-            GameState(location=location, questioner=first_player)
-        )
+
+    def play(self):
+        first_questioner = random.choice(list(self.players.keys()))
+        state = GameState(location=self.location, questioner=first_questioner)
+
+        while True:
+            self.make_question(state)
+            self.answer(state)
+            spy_guess = self.ask_spy_to_guess(state)
+            if spy_guess:
+                break
+
+            player_guess = self.ask_players_to_guess(state)
+            if player_guess:
+                break

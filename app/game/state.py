@@ -3,7 +3,6 @@ from typing import List
 
 from .data import GameMessage, Player, Question
 
-
 class GameState(BaseModel):
     location: str
     questioner: Player

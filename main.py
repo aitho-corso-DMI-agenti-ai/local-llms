@@ -8,8 +8,10 @@ def main():
     location = "Department of Mathematics and Computer Science"
 
     players = [
-        AgentPlayer(model="gemma3:1b", name="Stefano", game_role=GameRole.SPY),
-        AgentPlayer(model="gemma3:1b", name="Lorenzo", game_role=GameRole.PLAYER, location=location),
+        AgentPlayer(model="gemma3:1b", name="Lorenzo", game_role=GameRole.SPY),
+        AgentPlayer(model="gemma3:1b", name="Stefano", game_role=GameRole.PLAYER, location=location),
+        AgentPlayer(model="gemma3:1b", name="Alessio", game_role=GameRole.PLAYER, location=location),
+        AgentPlayer(model="gemma3:1b", name="Davide", game_role=GameRole.PLAYER, location=location),
     ]
 
     game_state.add_message(

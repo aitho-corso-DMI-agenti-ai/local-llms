@@ -1,34 +1,39 @@
-from app.agent_player import AgentPlayer
-from app.game import GameState, GameRole
+from app.game.player import AgentPlayer
+from app.game import Game
+from app.game.data import GameRole, Player
 
 
 def main():
-    game_state = GameState()
-
     location = "Department of Mathematics and Computer Science"
-    model = "deepseek-r1"
+    model = "gemma3:1b"
 
-    players = {
-        "Lorenzo": AgentPlayer(model=model, name="Lorenzo", game_role=GameRole.SPY),
-        "Stefano": AgentPlayer(model=model, name="Stefano", game_role=GameRole.PLAYER, location=location),
-        "Alessio": AgentPlayer(model=model, name="Alessio", game_role=GameRole.PLAYER, location=location),
-        "Davide": AgentPlayer(model=model, name="Davide", game_role=GameRole.PLAYER, location=location),
-    }
+    game = Game(
+        players={
+            Player.Lorenzo: AgentPlayer(
+                model=model, name="Lorenzo", game_role=GameRole.SPY
+            ),
+            Player.Stefano: AgentPlayer(
+                model=model,
+                name="Stefano",
+                game_role=GameRole.PLAYER,
+                location=location,
+            ),
+            Player.Alessio: AgentPlayer(
+                model=model,
+                name="Alessio",
+                game_role=GameRole.PLAYER,
+                location=location,
+            ),
+            Player.Davide: AgentPlayer(
+                model=model, name="Davide", game_role=GameRole.PLAYER, location=location
+            ),
+        },
+    )
 
-    turns = 0
-    current_player = players["Lorenzo"]
-    while True:
-        turns += 1
-
-        player_question = current_player.reply_to(game_state)
-        print(f"-- Player {current_player.name} question: {player_question}")
-        game_state.add_message(player_question.to_game_message(current_player.name))
-
-        print("###### ")
-        print(f"Turn #{turns}")
-        print(f"Game state: {game_state}")
-
-        current_player = players[player_question.to_player]
+    game.play(
+        location="Department of Mathematics and Computer Science",
+        first_player=Player.Lorenzo,
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1 @@
+Make a question about the Hidden Location to a player of your choice.

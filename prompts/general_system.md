@@ -12,5 +12,8 @@ If a player thinks they know who the Spy is, they can accuse it explicitly inste
 # Your role
 {game_role_prompt}
 
+# Current conversation
+{conversation_prompt}
+
 # Notes
 - Be brief in your answers.

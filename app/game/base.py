@@ -73,9 +73,19 @@ class Game(BaseModel):
         else:
             return GameResult(spy_won=True)
 
+    def __print_info(self):
+        print("## Game info") 
+        print(f"Players: {[str(player_name) for player_name in self.players.keys()]}")
+        print(f"Location: {str(self.location)}")
+
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))
+        if self.location is None:
+            self.location = random.choice(list(Location))
+
         state = GameState(location=self.location, questioner=first_questioner)
+
+        self.__print_info()
 
         while True:
             self.make_question(state)

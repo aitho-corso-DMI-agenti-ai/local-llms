@@ -45,3 +45,7 @@ class SpyGuess(BaseModel):
     guessed_location: str | None
     justification: str
 
+class PlayerGuess(BaseModel):
+    alleged_spy: Player | None
+    justification: str
+

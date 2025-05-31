@@ -5,6 +5,8 @@ from app.game.data import GameRole, Player
 
 def main():
     location = "Department of Mathematics and Computer Science"
+
+    # model = "mistral-nemo:12b"
     model = "gemma3:1b"
 
     game = Game(

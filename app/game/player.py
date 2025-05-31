@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.prompting import load_prompt
 
-from .data import GameRole, Question, Answer, SpyGuess
+from .data import GameRole, Question, Answer, SpyGuess, PlayerGuess
 from .state import GameState
 
 
@@ -70,3 +70,17 @@ class AgentPlayer(BaseModel):
             model=self.model, messages=messages, format=SpyGuess.model_json_schema()
         )
         return SpyGuess.model_validate_json(response.message.content)
+
+    def guess_spy(self, state: GameState) -> PlayerGuess:
+        messages = [
+            self.__build_system_prompt(state),
+            {
+                "role": "user",
+                "content": self.__role_prompt("guess_the_spy"),
+            },
+        ]
+        response = chat(
+            model=self.model, messages=messages, format=PlayerGuess.model_json_schema()
+        )
+        return PlayerGuess.model_validate_json(response.message.content)
+

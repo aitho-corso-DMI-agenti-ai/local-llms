@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from langgraph.graph import StateGraph, START
 
 from .player import AgentPlayer
-from .data import Player, Question, Answer, SpyGuess, GameRole
+from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole
 from .state import GameState
 
 
@@ -17,11 +17,13 @@ class Game(BaseModel):
         graph_builder.add_node("make_question", self.make_question)
         graph_builder.add_node("answer", self.answer)
         graph_builder.add_node("ask_spy_to_guess", self.ask_spy_to_guess)
+        graph_builder.add_node("ask_players_to_guess", self.ask_players_to_guess)
 
         graph_builder.add_edge(START, "make_question")
         graph_builder.add_edge("make_question", "answer")
         graph_builder.add_edge("answer", "ask_spy_to_guess")
-        graph_builder.add_edge("ask_spy_to_guess", "make_question")
+        graph_builder.add_edge("ask_spy_to_guess", "ask_players_to_guess")
+        graph_builder.add_edge("ask_players_to_guess", "make_question")
 
         self._graph = graph_builder.compile()
 
@@ -29,6 +31,17 @@ class Game(BaseModel):
         spy = self.get_spy()
         guess: SpyGuess = spy.guess_location(state)
         print(f"[Game] Spy guess: {guess}")
+        return state
+
+    def ask_players_to_guess(self, state: GameState) -> GameState:
+        for player_name in self.players:
+            player = self.players[player_name]
+            if player.game_role == GameRole.SPY:
+                continue
+
+            guess: PlayerGuess = player.guess_spy(state)
+            print(f"[Game] Player {player_name} guess: {guess}")
+
         return state
 
     def make_question(self, state: GameState) -> GameState:

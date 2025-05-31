@@ -40,3 +40,8 @@ class Answer(BaseModel):
             user = user_name,
             message_text = f"[Answer to {questioner_name}] {self.content}"
         )
+
+class SpyGuess(BaseModel):
+    guessed_location: str | None
+    justification: str
+

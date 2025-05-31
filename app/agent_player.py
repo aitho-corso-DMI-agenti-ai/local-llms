@@ -1,7 +1,7 @@
 from ollama import chat, Message
 from pydantic import BaseModel
 
-from app.game import GameMessage, GameState, GameRole
+from app.game import GameMessage, GameState, GameRole, Question
 from app.prompting import load_prompt
 
 
@@ -25,16 +25,27 @@ class AgentPlayer(BaseModel):
             ),
         }
 
-    def __format_conversation_prompt(self, game_messages: list[GameMessage]) -> Message:
+    def __format_conversation_prompt(
+        self, game_messages: list[GameMessage]
+    ) -> Question:
         output = "Previous messages: "
         output += "\n".join([str(msg) for msg in game_messages])
         return {"role": "user", "content": output}
 
     def reply_to(self, game_state: GameState) -> Message:
-        return chat(
-            model="gemma3:1b",
-            messages=[
-                self._system_message,
-                self.__format_conversation_prompt(game_state.messages),
-            ],
+        messages = [
+            self._system_message,
+            self.__format_conversation_prompt(game_state.messages),
+        ]
+
+        # print("---")
+        # for msg in messages:
+        #     print(msg)
+        #     print("---")
+        
+
+        response = chat(
+            model=self.model, messages=messages, format=Question.model_json_schema()
         )
+
+        return Question.model_validate_json(response.message.content)

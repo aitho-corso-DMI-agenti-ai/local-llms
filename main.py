@@ -9,7 +9,7 @@ def main():
     # model = "mistral-nemo:12b"
     model = "gemma3:1b"
 
-    Game(
+    game_result = Game(
         players={
             Player.Lorenzo: AgentPlayer(
                 model=model, name="Lorenzo", game_role=GameRole.SPY
@@ -32,6 +32,8 @@ def main():
         },
         location="Department of Mathematics and Computer Science",
     ).play()
+
+    print(f"Final game result {game_result}")
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ import random
 from pydantic import BaseModel
 
 from .player import AgentPlayer
-from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole
+from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole, GameResult
 from .state import GameState
 
 
@@ -61,6 +61,17 @@ class Game(BaseModel):
             if player.game_role == GameRole.SPY:
                 return player
 
+    def check_spy_guess(self, guess: SpyGuess) -> GameResult:
+        if guess.guessed_location == self.location:
+            return GameResult(spy_won=True)
+        else:
+            return GameResult(spy_won=False)
+
+    def check_player_guess(self, guess: PlayerGuess) -> GameResult:
+        if guess.alleged_spy == self.get_spy():
+            return GameResult(spy_won=False)
+        else:
+            return GameResult(spy_won=True)
 
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))
@@ -71,8 +82,8 @@ class Game(BaseModel):
             self.answer(state)
             spy_guess = self.ask_spy_to_guess(state)
             if spy_guess:
-                break
+                return self.check_spy_guess(spy_guess)
 
             player_guess = self.ask_players_to_guess(state)
             if player_guess:
-                break
+                return self.check_player_guess(player_guess)

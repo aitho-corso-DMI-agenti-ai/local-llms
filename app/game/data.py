@@ -49,3 +49,6 @@ class PlayerGuess(BaseModel):
     alleged_spy: Player | None
     justification: str
 
+
+class GameResult(BaseModel):
+    spy_won: bool

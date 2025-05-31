@@ -2,13 +2,13 @@ import random
 from pydantic import BaseModel
 
 from .player import AgentPlayer
-from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole, GameResult
+from .data import Player, Question, Answer, SpyGuess, PlayerGuess, GameRole, GameResult, Location
 from .state import GameState
 
 
 class Game(BaseModel):
     players: dict[Player, AgentPlayer]
-    location: str
+    location: Location
 
     def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
         spy = self.get_spy()

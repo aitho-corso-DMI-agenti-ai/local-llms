@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import StrEnum, auto
 
 from pydantic import BaseModel
 
@@ -19,6 +19,12 @@ class Player(StrEnum):
     Stefano = "Stefano"
     Davide = "Davide"
     Alessio = "Alessio"
+
+
+class Location(StrEnum):
+    University = auto()
+    CarWash = auto()
+    Pool = auto()
 
 class Question(BaseModel):
     to_player: Player
@@ -42,7 +48,7 @@ class Answer(BaseModel):
         )
 
 class SpyGuess(BaseModel):
-    guessed_location: str | None
+    guessed_location: Location | None
     justification: str
 
 class PlayerGuess(BaseModel):

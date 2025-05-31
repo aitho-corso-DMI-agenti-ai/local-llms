@@ -1,10 +1,10 @@
 from app.game.player import AgentPlayer
 from app.game import Game
-from app.game.data import GameRole, Player
+from app.game.data import GameRole, Player, Location
 
 
 def main():
-    location = "Department of Mathematics and Computer Science"
+    location = Location.University
 
     # model = "mistral-nemo:12b"
     model = "gemma3:1b"
@@ -30,7 +30,7 @@ def main():
                 model=model, name="Davide", game_role=GameRole.PLAYER, location=location
             ),
         },
-        location="Department of Mathematics and Computer Science",
+        location=Location.University,
     ).play()
 
     print(f"Final game result {game_result}")

@@ -16,4 +16,4 @@ If a player thinks they know who the Spy is, they can accuse it explicitly inste
 {conversation_prompt}
 
 # Notes
-- Be brief in your answers.
+- Be brief and generic in your answers. If you are too verbose the game will be boring.

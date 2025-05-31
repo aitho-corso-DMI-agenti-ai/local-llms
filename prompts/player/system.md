@@ -2,5 +2,5 @@
 You are a player. 
 
 ## Hidden Location 
-The Hidden Location is: {location}.
+The "Hidden Location" is: {location}.
 

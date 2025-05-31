@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class GameRole(StrEnum):
@@ -21,11 +21,22 @@ class Player(StrEnum):
     Alessio = "Alessio"
 
 class Question(BaseModel):
-    to_player: Player = Field(description="Name of the player that must reply to the question")
-    content: str = Field(description="Content of the question. IMPORTANT: Must be regarding the location of the game.")
+    to_player: Player
+    content: str
+    justification: str
 
     def to_game_message(self, user_name: str) -> GameMessage:
         return GameMessage(
             user = user_name,
             message_text = f"[Question to {self.to_player}] {self.content}"
+        )
+
+class Answer(BaseModel):
+    content: str
+    justification: str
+
+    def to_game_message(self, questioner_name: str, user_name: str) -> GameMessage:
+        return GameMessage(
+            user = user_name,
+            message_text = f"[Answer to {questioner_name}] {self.content}"
         )

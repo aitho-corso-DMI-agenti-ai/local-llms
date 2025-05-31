@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.prompting import load_prompt
 
-from .data import GameRole, Question
+from .data import GameRole, Question, Answer
 from .state import GameState
 
 
@@ -12,25 +12,48 @@ class AgentPlayer(BaseModel):
     name: str
     game_role: GameRole
 
-    def make_question(self, state: GameState) -> Question:
-        system_message = {
+    def __role_prompt(self, prompt_id, **kwargs):
+        return load_prompt(f"{self.game_role}/{prompt_id}", **kwargs)
+
+    def __build_system_prompt(self, state: GameState):
+        game_role_prompt = self.__role_prompt("system", location=state.location)
+        conversation_prompt = state.conversation_prompt()
+
+        return {
             "role": "system",
             "content": load_prompt(
                 "general_system",
                 name=self.name,
-                game_role_prompt=load_prompt(
-                    f"{self.game_role}_system", location=state.location
-                ),
-                conversation_prompt=state.conversation_prompt(),
+                game_role_prompt=game_role_prompt,
+                conversation_prompt=conversation_prompt,
             ),
         }
 
-        query_message = {"role": "user", "content": load_prompt("make_question")}
-
-        messages = [system_message, query_message]
-
+    def make_question(self, state: GameState) -> Question:
+        messages = [
+            self.__build_system_prompt(state),
+            {"role": "user", "content": self.__role_prompt("make_question")},
+        ]
         response = chat(
             model=self.model, messages=messages, format=Question.model_json_schema()
         )
 
         return Question.model_validate_json(response.message.content)
+
+    def answer(self, state: GameState) -> Answer:
+        messages = [
+            self.__build_system_prompt(state),
+            {
+                "role": "user",
+                "content": self.__role_prompt(
+                    "answer",
+                    questioner_name=state.questioner,
+                    question=state.question.content,
+                ),
+            },
+        ]
+        response = chat(
+            model=self.model, messages=messages, format=Question.model_json_schema()
+        )
+
+        return Answer.model_validate_json(response.message.content)

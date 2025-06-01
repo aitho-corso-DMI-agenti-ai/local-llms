@@ -2,12 +2,6 @@ from enum import StrEnum, auto
 
 from pydantic import BaseModel, Field
 
-
-class GameRole(StrEnum):
-    SPY = "spy"
-    PLAYER = "player"
-
-
 class GameMessage(BaseModel):
     user: str
     message_text: str
@@ -41,7 +35,7 @@ class Question(BaseModel):
     to_player: Player = Field(
         description="Name of the player you want to make the question to."
     )
-    content: str
+    content: str = Field(description="The content of the question.")
     justification: str
 
     def to_game_message(self, user_name: str) -> GameMessage:

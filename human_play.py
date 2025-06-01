@@ -27,15 +27,18 @@ def main():
     args = parser.parse_args()
 
     human_player_name = args.human_player_name
-    game_result, game_state = Game(
+
+    game = Game(
         players=init_players(human_player_name),
         printer=HumanGamePrinter(is_player_spy=True),
         spy_name=human_player_name
-    ).play()
+    )
+
+    game_result = game.play()
 
     print("################")
     print(f"Final game result: {game_result}")
-    print(f"Final game state: {game_state}")
+    print(f"Final conversation:\n\n{game.get_conversation().as_prompt()}")
 
 
 if __name__ == "__main__":

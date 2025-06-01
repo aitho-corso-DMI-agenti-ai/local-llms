@@ -11,22 +11,25 @@ from .data import (
     GameResult,
     Location,
 )
-from .state import GameState
 from .print import GamePrinter
+from .state import ConversationState
+
 
 class Game(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    printer: GamePrinter 
+    printer: GamePrinter
 
     players: dict[Player, PlayerActor]
     spy_name: Player | None = None
 
+    _conversation: ConversationState = ConversationState()
+    _questioner_name: Player | None = None
     _location: Location | None = None
 
-    def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
+    def ask_spy_to_guess(self) -> SpyGuess | None:
         spy = self.get_spy()
-        guess: SpyGuess = spy.guess_location(state)
+        guess: SpyGuess = spy.guess_location(self._conversation)
         self.printer.print_spy_guess(spy, guess)
 
         if guess.guessed_location is not None:
@@ -34,13 +37,13 @@ class Game(BaseModel):
         else:
             return None
 
-    def ask_players_to_guess(self, state: GameState) -> PlayerGuess | None:
+    def ask_players_to_guess(self) -> PlayerGuess | None:
         for player_name in self.players:
-            player = self.players[player_name]
+            player = self.get_player(player_name)
             if player.is_spy():
                 continue
 
-            guess: PlayerGuess = player.guess_spy(state)
+            guess: PlayerGuess = player.guess_spy(self._conversation)
             self.printer.print_player_guess(player_name, guess)
 
             if guess.accused_player is not None:
@@ -48,24 +51,25 @@ class Game(BaseModel):
 
         return None
 
-    def make_question(self, state: GameState):
-        questioner = self.players[state.questioner]
-        question: Question = questioner.make_question(state)
-        self.printer.print_question(state.questioner, question)
+    def make_question(self):
+        question: Question = self.get_player(self._questioner_name).make_question(
+            self._conversation
+        )
+        self.printer.print_question(self._questioner_name, question)
+        return question
 
-        state._question = question
+    def answer(self, question: Question):
+        respondent_name = question.to_player
 
-    def answer(self, state: GameState):
-        questioner = self.players[state.questioner]
-        player = self.players[state._question.to_player]
+        answer: Answer = self.get_player(respondent_name).answer(
+            self._conversation, self._questioner_name, question.content
+        )
+        self.printer.print_answer(respondent_name, answer)
 
-        answer: Answer = player.answer(state)
-        self.printer.print_answer(state._question.to_player, answer)
+        self._conversation.add_message(question.to_game_message(self._questioner_name))
+        self._conversation.add_message(answer.to_game_message(self._questioner_name, respondent_name))
 
-        state.add_message(state._question.to_game_message(questioner.name))
-        state.add_message(answer.to_game_message(questioner.name, player.name))
-
-        state.questioner = state._question.to_player
+        self._questioner_name = respondent_name
 
     def get_spy(self):
         return self.players[self.spy_name]
@@ -81,12 +85,14 @@ class Game(BaseModel):
         self.printer.print_player_guess_result(guess, spy.name, spy_won)
         return GameResult(spy_won=spy_won)
 
-    def __print_info(self):
-        self.printer.print_info(self.players, self.spy_name, self._location)
+
+    def get_player(self, name: Player):
+        return self.players[name]
+
+    def get_conversation(self) -> ConversationState:
+        return self._conversation
 
     def play(self):
-        first_questioner = random.choice(list(self.players.keys()))
-        
         if self._location is None:
             self._location = random.choice(list(Location))
 
@@ -94,27 +100,23 @@ class Game(BaseModel):
             self.spy_name = random.choice(list(self.players.keys()))
 
         for player in self.players.values():
-            if not player.is_spy():
+            if player.name != self.spy_name:
                 player.communicate_location(self._location)
 
-        state = GameState(location=self._location, questioner=first_questioner)
+        self._questioner_name = random.choice(list(self.players.keys()))
+        self._conversation = ConversationState()
 
-        self.__print_info()
+        self.printer.print_game_info(self.players, self.spy_name, self._location)
+        print(f"First questioner: {self._questioner_name}")
 
-        turns = 0
         while True:
-            turns += 1
+            question = self.make_question()
+            self.answer(question)
 
-            self.make_question(state)
-            self.answer(state)
-
-            spy_guess = self.ask_spy_to_guess(state)
+            spy_guess = self.ask_spy_to_guess()
             if spy_guess:
-                return self.check_spy_guess(spy_guess), state
+                return self.check_spy_guess(spy_guess) 
 
-            player_guess = self.ask_players_to_guess(state)
+            player_guess = self.ask_players_to_guess()
             if player_guess:
-                return self.check_player_guess(player_guess), state
-
-            if turns == 5:
-                return GameResult(spy_won=True), state
+                return self.check_player_guess(player_guess)

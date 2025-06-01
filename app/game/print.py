@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 @runtime_checkable
 class GamePrinter(Protocol):
-    def print_info(self, players, spy_name, location): ...
+    def print_game_info(self, players, spy_name, location): ...
 
     def print_question(self, questioner, question): ...
 
@@ -20,7 +20,7 @@ class GamePrinter(Protocol):
 
 
 class VerboseGamePrinter:
-    def print_info(self, players, spy_name, location):
+    def print_game_info(self, players, spy_name, location):
         print("## Game info")
         print(f"Players: {[str(player_name) for player_name in players.keys()]}")
         print(f"Spy: {spy_name}")
@@ -74,7 +74,7 @@ class VerboseGamePrinter:
 class HumanGamePrinter(BaseModel):
     is_player_spy: bool
 
-    def print_info(self, players, spy_name, location):
+    def print_game_info(self, players, spy_name, location):
         print("## Game info")
         print(f"Players: {[str(player_name) for player_name in players.keys()]}")
         if not self.is_player_spy:

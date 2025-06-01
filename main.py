@@ -18,13 +18,16 @@ def init_players():
 
 
 def main():
-    game_result, game_state = Game(
-        players=init_players(), printer=VerboseGamePrinter()
-    ).play()
+    game = Game(
+        players=init_players(),
+        printer=VerboseGamePrinter(),
+    )
+
+    game_result = game.play()
 
     print("################")
     print(f"Final game result: {game_result}")
-    print(f"Final game state: {game_state}")
+    print(f"Final conversation:\n\n{game.get_conversation().as_prompt()}")
 
 
 if __name__ == "__main__":

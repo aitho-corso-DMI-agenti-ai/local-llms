@@ -17,7 +17,6 @@ class Player(StrEnum):
     Alessio = "Alessio"
     Michele = "Michele"
 
-
 class Location(StrEnum):
     University = auto()
     CarWash = auto()

@@ -1,5 +1,5 @@
-Do you want to attempt to guess who is the Spy based on the current conversation? 
+Do you want to accuse a player to be the Spy based on the current conversation? 
 
 **IMPORTANT**: 
-- You will lose if your guess is wrong, so be reasonably sure if you make an attempt.
-- Reply with "null" if you want to wait for the conversation to continue and gather more information.
+- You will lose if the player you accuse is not the Spy, so be reasonably sure if you make an attempt.
+- Do not accuse anyone if you need to gather more information.

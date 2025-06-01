@@ -21,6 +21,7 @@ class Player(StrEnum):
     Stefano = "Stefano"
     Davide = "Davide"
     Alessio = "Alessio"
+    Michele = "Michele"
 
 
 class Location(StrEnum):
@@ -38,7 +39,7 @@ class Location(StrEnum):
 
 class Question(BaseModel):
     to_player: Player = Field(
-        description="The name of the player you want to question. It is important it is different from you."
+        description="Name of the player you want to make the question to."
     )
     content: str
     justification: str
@@ -61,18 +62,12 @@ class Answer(BaseModel):
 
 
 class SpyGuess(BaseModel):
-    guessed_location: Location | None = Field(
-        description="Name of the guessed Hidden Location. Must be null if you don't want to provide any guess at the moment.",
-        default=None,
-    )
+    guessed_location: Location | None = Field(default=None)
     justification: str
 
 
 class PlayerGuess(BaseModel):
-    alleged_spy: Player | None = Field(
-        description="Name of the player that you think is the Spy. Must be null if you don't want to provide any guess at the moment.",
-        default=None,
-    )
+    accused_player: Player | None = Field(default=None)
     justification: str
 
 

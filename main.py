@@ -18,9 +18,11 @@ def init_players():
 
 
 def main():
-    game_result = Game(players=init_players()).play()
+    game_result, game_state = Game(players=init_players()).play()
 
-    print(f"Final game result {game_result}")
+    print("################")
+    print(f"Final game result: {game_result}")
+    print(f"Final game state: {game_state}")
 
 
 if __name__ == "__main__":

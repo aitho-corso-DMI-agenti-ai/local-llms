@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.prompting import load_prompt
 
-from .data import GameRole, Question, Answer, SpyGuess, PlayerGuess
+from .data import GameRole, Question, Answer, SpyGuess, PlayerGuess, Player
 from .state import GameState
 
 
@@ -36,83 +36,69 @@ class AgentPlayer(BaseModel):
                 name=self.name,
                 game_role_prompt=game_role_prompt,
                 conversation_prompt=conversation_prompt,
+                player_names=", ".join(list(Player))
             ),
         }
 
     def __remove_own_name_from_output_structure(self, structure):
-        structure["$defs"]["Player"]["enum"].remove(self.name)
+        if "$defs" in structure and "Player" in structure["$defs"]:
+            structure["$defs"]["Player"]["enum"].remove(self.name)
         return structure
 
-    def __default_options(self):
-        return {"temperature": 1.0}
+    def _send_request(
+        self,
+        state: GameState,
+        prompt: str,
+        output_model: type[BaseModel],
+    ) -> dict:
+        messages = [
+            self.__build_system_prompt(state),
+            {"role": "user", "content": prompt},
+        ]
+
+        while True:
+            try:
+                response = chat(
+                    model=self.model,
+                    messages=messages,
+                    format=self.__remove_own_name_from_output_structure(
+                        output_model.model_json_schema()
+                    ),
+                    options={"temperature": 1.0},
+                )
+
+                return output_model.model_validate_json(response.message.content)
+            except Exception as e:
+                print(f"Exception while making a request: {e}, retrying...")
 
     def make_question(self, state: GameState) -> Question:
-        messages = [
-            self.__build_system_prompt(state),
-            {"role": "user", "content": self.__role_prompt("make_question")},
-        ]
-        response = chat(
-            model=self.model,
-            messages=messages,
-            format=self.__remove_own_name_from_output_structure(
-                Question.model_json_schema()
-            ),
-            options=self.__default_options(),
+        return self._send_request(
+            state,
+            self.__role_prompt("make_question"),
+            Question,
         )
-
-        return Question.model_validate_json(response.message.content)
 
     def answer(self, state: GameState) -> Answer:
-        messages = [
-            self.__build_system_prompt(state),
-            {
-                "role": "user",
-                "content": self.__role_prompt(
-                    "answer",
-                    questioner_name=state.questioner,
-                    question=state._question.content,
-                ),
-            },
-        ]
-        response = chat(
-            model=self.model,
-            messages=messages,
-            format=Answer.model_json_schema(),
-            options=self.__default_options(),
+        return self._send_request(
+            state,
+            self.__role_prompt(
+                "answer",
+                questioner_name=state.questioner,
+                question=state._question.content,
+            ),
+            Answer,
         )
-
-        return Answer.model_validate_json(response.message.content)
 
     def guess_location(self, state: GameState) -> SpyGuess:
-        messages = [
-            self.__build_system_prompt(state),
-            {
-                "role": "user",
-                "content": self.__role_prompt("guess_location"),
-            },
-        ]
-        response = chat(
-            model=self.model,
-            messages=messages,
-            format=SpyGuess.model_json_schema(),
-            options=self.__default_options(),
+        return self._send_request(
+            state,
+            self.__role_prompt("guess_location"),
+            SpyGuess,
         )
-        return SpyGuess.model_validate_json(response.message.content)
 
     def guess_spy(self, state: GameState) -> PlayerGuess:
-        messages = [
-            self.__build_system_prompt(state),
-            {
-                "role": "user",
-                "content": self.__role_prompt("guess_the_spy"),
-            },
-        ]
-        response = chat(
-            model=self.model,
-            messages=messages,
-            format=self.__remove_own_name_from_output_structure(
-                PlayerGuess.model_json_schema()
-            ),
-            options=self.__default_options(),
+        return self._send_request(
+            state,
+            self.__role_prompt("guess_the_spy"),
+            PlayerGuess,
         )
-        return PlayerGuess.model_validate_json(response.message.content)

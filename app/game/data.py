@@ -1,4 +1,4 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -18,17 +18,16 @@ class Player(StrEnum):
     Michele = "Michele"
 
 class Location(StrEnum):
-    University = auto()
-    CarWash = auto()
-    Pool = auto()
-    Library = auto()
-    Bank = auto()
-    PoliceStation = auto()
-    Hospital = auto()
-    Supermarket = auto()
-    Cinema = auto()
-    Embassy = auto()
-
+    University = "University"
+    CarWash = "Car Wash"
+    Pool = "Pool"
+    Library = "Library"
+    Bank = "Bank"
+    PoliceStation = "Police Station"
+    Hospital = "Hospital"
+    Supermarket = "Supermarket"
+    Cinema = "Cinema"
+    Embassy = "Embassy"
 
 class Question(BaseModel):
     to_player: Player = Field(

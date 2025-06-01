@@ -1,10 +1,12 @@
 from ollama import chat
 from pydantic import BaseModel
 
-from app.prompting import load_prompt
-
-from app.game.data import Question, Answer, SpyGuess, PlayerGuess, Player
+from app.game.data import Question, Answer, SpyGuess, PlayerGuess, Player, Location
 from app.game.state import ConversationState
+
+
+def load_prompt(prompt_id: str, **kwargs):
+    return open(f"prompts/{prompt_id}.md", "r").read().format(**kwargs)
 
 
 class AgentPlayer(BaseModel):
@@ -32,6 +34,7 @@ class AgentPlayer(BaseModel):
                 game_role_prompt=game_role_prompt,
                 conversation_prompt=conversation_state.as_prompt(),
                 player_names=", ".join(list(Player)),
+                possible_locations=", ".join(list(Location)),
             ),
         }
 
@@ -50,6 +53,11 @@ class AgentPlayer(BaseModel):
             self.__build_system_prompt(conversation_state),
             {"role": "user", "content": prompt},
         ]
+
+        # print("------------------------------")
+        # for message in messages:
+        #     print(message["content"])
+        # print("------------------------------")
 
         while True:
             try:

@@ -4,7 +4,7 @@ from app.game import Game, VerboseGamePrinter
 def main():
     game = Game(
         agent_model="gemma3:1b",
-        printer=VerboseGamePrinter(),
+        printer=VerboseGamePrinter(with_justifications=True),
     )
 
     game_result = game.play()

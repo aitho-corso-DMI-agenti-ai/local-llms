@@ -12,12 +12,13 @@ from .data import (
     Location,
 )
 from .state import GameState
-
+from .print import GamePrinter
 
 class Game(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     players: dict[Player, PlayerActor]
+    printer: GamePrinter 
 
     _location: Location | None = None
     _spy: Player | None
@@ -25,11 +26,7 @@ class Game(BaseModel):
     def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
         spy = self.get_spy()
         guess: SpyGuess = spy.guess_location(state)
-        print("-------------")
-        print(f"[Game] Player {spy.name} (Spy) guess:")
-        print(f"[Game] Guessed location: {guess.guessed_location}")
-        print(f"[Game] Justification: {guess.justification}")
-        print("-------------")
+        self.printer.print_spy_guess(spy, guess)
 
         if guess.guessed_location is not None:
             return guess
@@ -43,11 +40,7 @@ class Game(BaseModel):
                 continue
 
             guess: PlayerGuess = player.guess_spy(state)
-            print("-------------")
-            print(f"[Game] Player {player_name} guess:")
-            print(f"[Game] Accused player: {guess.accused_player}")
-            print(f"[Game] Justification: {guess.justification}")
-            print("-------------")
+            self.printer.print_player_guess(player_name, guess)
 
             if guess.accused_player is not None:
                 return guess
@@ -57,11 +50,7 @@ class Game(BaseModel):
     def make_question(self, state: GameState):
         questioner = self.players[state.questioner]
         question: Question = questioner.make_question(state)
-        print("-------------")
-        print(f"[Game] Question from {state.questioner.value} to {question.to_player.value}:")
-        print(f"[Game] Content: {question.content}")
-        print(f"[Game] Justification: {question.justification}")
-        print("-------------")
+        self.printer.print_question(state.questioner, question)
 
         state._question = question
 
@@ -70,11 +59,7 @@ class Game(BaseModel):
         player = self.players[state._question.to_player]
 
         answer: Answer = player.answer(state)
-        print("-------------")
-        print(f"[Game] Answer from player {state._question.to_player.value}:")
-        print(f"[Game] Content: {answer.content}")
-        print(f"[Game] Justification: {answer.justification}")
-        print("-------------")
+        self.printer.print_answer(state._question.to_player, answer)
 
         state.add_message(state._question.to_game_message(questioner.name))
         state.add_message(answer.to_game_message(questioner.name, player.name))
@@ -85,31 +70,18 @@ class Game(BaseModel):
         return self.players[self._spy_name]
 
     def check_spy_guess(self, guess: SpyGuess) -> GameResult:
-        if guess.guessed_location == self._location:
-            print("[Game] The Spy guessed the location and won!")
-            return GameResult(spy_won=True)
-        else:
-            print(
-                f"[Game] The Spy tried to guess the location, but said {guess.guessed_location} while the location was {self._location}!"
-            )
-            return GameResult(spy_won=False)
+        spy_won = guess.guessed_location == self._location
+        self.printer.print_spy_guess_result(guess, self._location, spy_won)
+        return GameResult(spy_won=spy_won)
 
     def check_player_guess(self, guess: PlayerGuess) -> GameResult:
         spy = self.get_spy()
-        if guess.accused_player.value == spy.name:
-            print(f"[Game] {spy.name} was the Spy and has been uncovered!")
-            return GameResult(spy_won=False)
-        else:
-            print(
-                f"[Game] The Spy was {spy.name}, but {guess.accused_player} was accused instead!"
-            )
-            return GameResult(spy_won=True)
+        spy_won = guess.accused_player.value != spy.name
+        self.printer.print_player_guess_result(guess, spy.name, spy_won)
+        return GameResult(spy_won=spy_won)
 
     def __print_info(self):
-        print("## Game info")
-        print(f"Players: {[str(player_name) for player_name in self.players.keys()]}")
-        print(f"Spy: {self._spy_name}")
-        print(f"Location: {str(self._location)}")
+        self.printer.print_info(self.players, self._spy_name, self._location)
 
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))

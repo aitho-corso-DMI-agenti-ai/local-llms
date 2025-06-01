@@ -1,5 +1,5 @@
 from app.game.player import AgentPlayer, HumanPlayer
-from app.game import Game
+from app.game import Game, HumanGamePrinter
 from app.game.data import Player
 import argparse
 
@@ -21,7 +21,8 @@ def main():
     args = parser.parse_args()
 
     human_player_name = args.human_player_name
-    game_result, game_state = Game(players=init_players(human_player_name)).play()
+    game_result, game_state = Game(players=init_players(human_player_name),
+    printer=HumanGamePrinter(is_player_spy=True)).play()
 
     print("################")
     print(f"Final game result: {game_result}")

@@ -1,5 +1,5 @@
 from app.game.player import AgentPlayer
-from app.game import Game
+from app.game import Game, VerboseGamePrinter
 from app.game.data import Player
 
 
@@ -18,7 +18,9 @@ def init_players():
 
 
 def main():
-    game_result, game_state = Game(players=init_players()).play()
+    game_result, game_state = Game(
+        players=init_players(), printer=VerboseGamePrinter()
+    ).play()
 
     print("################")
     print(f"Final game result: {game_result}")

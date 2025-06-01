@@ -17,11 +17,12 @@ from .print import GamePrinter
 class Game(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    players: dict[Player, PlayerActor]
     printer: GamePrinter 
 
+    players: dict[Player, PlayerActor]
+    spy_name: Player | None = None
+
     _location: Location | None = None
-    _spy: Player | None
 
     def ask_spy_to_guess(self, state: GameState) -> SpyGuess | None:
         spy = self.get_spy()
@@ -67,7 +68,7 @@ class Game(BaseModel):
         state.questioner = state._question.to_player
 
     def get_spy(self):
-        return self.players[self._spy_name]
+        return self.players[self.spy_name]
 
     def check_spy_guess(self, guess: SpyGuess) -> GameResult:
         spy_won = guess.guessed_location == self._location
@@ -81,11 +82,13 @@ class Game(BaseModel):
         return GameResult(spy_won=spy_won)
 
     def __print_info(self):
-        self.printer.print_info(self.players, self._spy_name, self._location)
+        self.printer.print_info(self.players, self.spy_name, self._location)
 
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))
-        self._spy_name = random.choice(list(self.players.keys()))
+        if self.spy_name is None:
+            self.spy_name = random.choice(list(self.players.keys()))
+
         self.get_spy().make_spy()
 
         if self._location is None:

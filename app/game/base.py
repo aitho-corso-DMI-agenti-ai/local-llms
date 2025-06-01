@@ -86,13 +86,16 @@ class Game(BaseModel):
 
     def play(self):
         first_questioner = random.choice(list(self.players.keys()))
+        
+        if self._location is None:
+            self._location = random.choice(list(Location))
+
         if self.spy_name is None:
             self.spy_name = random.choice(list(self.players.keys()))
 
-        self.get_spy().make_spy()
-
-        if self._location is None:
-            self._location = random.choice(list(Location))
+        for player in self.players.values():
+            if not player.is_spy():
+                player.communicate_location(self._location)
 
         state = GameState(location=self._location, questioner=first_questioner)
 
@@ -105,17 +108,13 @@ class Game(BaseModel):
             self.make_question(state)
             self.answer(state)
 
-            print("## Spy guess")
             spy_guess = self.ask_spy_to_guess(state)
             if spy_guess:
                 return self.check_spy_guess(spy_guess), state
-            print("------------")
 
-            print("## Player guesses")
             player_guess = self.ask_players_to_guess(state)
             if player_guess:
                 return self.check_player_guess(player_guess), state
-            print("-----------------")
 
             if turns == 5:
                 return GameResult(spy_won=True), state

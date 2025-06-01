@@ -2,23 +2,18 @@
 from pydantic import BaseModel
 
 from app.game.state import GameState
-from app.game.data import Question, Answer, SpyGuess, PlayerGuess, Player, Location, GameRole
+from app.game.data import Question, Answer, SpyGuess, PlayerGuess, Player, Location
 
 DEFAULT_JUSTIFICATION = "I'm a human, I don't need to justify my choice"
 
 class HumanPlayer(BaseModel):
     name: str
 
-    _game_role: GameRole
-
-    def model_post_init(self, context):
-        self._game_role = GameRole.PLAYER
-
-    def make_spy(self):
-        self._game_role = GameRole.SPY
+    def communicate_location(self, location: str):
+        print(f"The location is: {location}!")
 
     def is_spy(self) -> bool:
-        return self._game_role == GameRole.SPY
+        return True
 
     def _get_input(self, prompt: str) -> str:
         return input(prompt).strip()
@@ -40,8 +35,11 @@ class HumanPlayer(BaseModel):
 
     def guess_location(self, state: GameState) -> SpyGuess:
         print("Guess the location:")
+        location_input = self._get_input(f"Which location do you guess? (Options: {', '.join(Location)}, or press Enter to skip) ")
+        if not location_input:
+            return SpyGuess(guessed_location=None, justification=DEFAULT_JUSTIFICATION)
         return SpyGuess(
-            guessed_location=Location(self._get_input(f"Which location do you guess? (Options: {', '.join(Location)}) ")),
+            guessed_location=Location(location_input),
             justification=DEFAULT_JUSTIFICATION
         )
 

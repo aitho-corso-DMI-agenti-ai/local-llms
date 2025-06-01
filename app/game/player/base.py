@@ -4,7 +4,7 @@ from app.game.data import Question, Answer, SpyGuess, PlayerGuess
 
 @runtime_checkable
 class PlayerActor(Protocol):
-    def make_spy(self):
+    def communicate_location(self, location: str):
         ...
 
     def is_spy(self) -> bool:

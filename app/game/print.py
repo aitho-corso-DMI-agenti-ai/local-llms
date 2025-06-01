@@ -84,14 +84,14 @@ class HumanGamePrinter(BaseModel):
 
     def print_question(self, questioner, question):
         print("-------------")
-        print(f"[Game] Question from {questioner.value} to {question.to_player.value}:")
-        print(f"[Game] Content: {question.content}")
+        print(f"{questioner.value} asks {question.to_player.value}:")
+        print(f"'{question.content}'")
         print("-------------")
 
     def print_answer(self, player, answer):
         print("-------------")
-        print(f"[Game] Answer from player {player.value}:")
-        print(f"[Game] Content: {answer.content}")
+        print(f"{player.value} responds:")
+        print(f"'{answer.content}'")
         print("-------------")
 
     def print_spy_guess(self, spy, guess):
@@ -99,9 +99,9 @@ class HumanGamePrinter(BaseModel):
             return
 
         print("-------------")
-        print(f"[Game] Player {spy.name} (Spy) guess:")
-        print(f"[Game] Guessed location: {guess.guessed_location}")
-        print(f"[Game] Justification: {guess.justification}")
+        print(f"{spy.name} (Spy) guesses:")
+        print(f"'{guess.guessed_location}'")
+        print(f"Justification: '{guess.justification}'")
         print("-------------")
 
     def print_player_guess(self, player_name, guess):
@@ -109,23 +109,23 @@ class HumanGamePrinter(BaseModel):
             return
 
         print("-------------")
-        print(f"[Game] Player {player_name} guess:")
-        print(f"[Game] Accused player: {guess.accused_player}")
-        print(f"[Game] Justification: {guess.justification}")
+        print(f"{player_name} guesses:")
+        print(f"'{guess.accused_player}'")
+        print(f"Justification: '{guess.justification}'")
         print("-------------")
 
     def print_spy_guess_result(self, guess, actual_location, spy_won):
         if spy_won:
-            print("[Game] The Spy guessed the location and won!")
+            print("The Spy guessed the location and won!")
         else:
             print(
-                f"[Game] The Spy tried to guess the location, but said {guess.guessed_location} while the location was {actual_location}!"
+                f"The Spy tried to guess the location, but said {guess.guessed_location} while the location was {actual_location}!"
             )
 
     def print_player_guess_result(self, guess, spy_name, spy_won):
         if not spy_won:
-            print(f"[Game] {spy_name} was the Spy and has been uncovered!")
+            print(f"{spy_name} was the Spy and has been uncovered!")
         else:
             print(
-                f"[Game] The Spy was {spy_name}, but {guess.accused_player} was accused instead!"
+                f"The Spy was {spy_name}, but {guess.accused_player} was accused instead!"
             )

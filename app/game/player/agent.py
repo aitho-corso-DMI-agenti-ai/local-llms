@@ -3,30 +3,27 @@ from pydantic import BaseModel
 
 from app.prompting import load_prompt
 
-from app.game.data import GameRole, Question, Answer, SpyGuess, PlayerGuess, Player
+from app.game.data import Question, Answer, SpyGuess, PlayerGuess, Player
 from app.game.state import GameState
 
 
 class AgentPlayer(BaseModel):
     model: str
     name: str
+    _location: str = None
 
-    _game_role: GameRole
-
-    def model_post_init(self, context):
-        self._game_role = GameRole.PLAYER
-
-    def make_spy(self):
-        self._game_role = GameRole.SPY
+    def communicate_location(self, location: str):
+        self._location = location
 
     def is_spy(self) -> bool:
-        return self._game_role == GameRole.SPY
+        return self._location is None
 
     def __role_prompt(self, prompt_id, **kwargs):
-        return load_prompt(f"{self._game_role}/{prompt_id}", **kwargs)
+        role = "spy" if self.is_spy() else "player"
+        return load_prompt(f"{role}/{prompt_id}", **kwargs)
 
     def __build_system_prompt(self, state: GameState):
-        game_role_prompt = self.__role_prompt("system", location=state.location)
+        game_role_prompt = self.__role_prompt("system", location=self._location)
         conversation_prompt = state.conversation_prompt()
 
         return {

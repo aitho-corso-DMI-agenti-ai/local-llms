@@ -1,7 +1,7 @@
 import random
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from .player import AgentPlayer
+from .player import PlayerActor
 from .data import (
     Player,
     Question,
@@ -15,7 +15,9 @@ from .state import GameState
 
 
 class Game(BaseModel):
-    players: dict[Player, AgentPlayer]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    players: dict[Player, PlayerActor]
 
     _location: Location | None = None
     _spy: Player | None

@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 from app.prompting import load_prompt
 
-from .data import GameRole, Question, Answer, SpyGuess, PlayerGuess, Player
-from .state import GameState
+from app.game.data import GameRole, Question, Answer, SpyGuess, PlayerGuess, Player
+from app.game.state import GameState
 
 
 class AgentPlayer(BaseModel):

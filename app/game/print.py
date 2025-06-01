@@ -71,7 +71,7 @@ class HumanGamePrinter(BaseModel):
 
     def print_spy_guess(self, spy, guess):
         if guess.guessed_location is None:
-            print(f"[SPY GUESS] {spy.name} hasn't got an hint for the Hidden Location, yet...")
+            print(f"[SPY GUESS] {spy.name} hasn't got an hint for the Secret Location, yet...")
             return
 
         print(f"[SPY GUESS] {spy.name} (Spy) guesses: {guess.guessed_location}")

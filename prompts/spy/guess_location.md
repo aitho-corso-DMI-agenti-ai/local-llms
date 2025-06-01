@@ -1,7 +1,7 @@
-Attempt to guess what's the "Hidden Location" following these steps:
+Attempt to guess what's the "Secret Location" following these steps:
     - Read the "Current conversation"
-    - Read the list of possible "Hidden Locations".
-    - Check if there is any detail that indicates one of the possible "Hidden Locations"
+    - Read the list of possible "Secret Locations".
+    - Check if there is any detail that indicates one of the possible "Secret Locations"
         - If you have enough elements to make a guess, then reply with your guessed location
         - Otherwise, reply with "null" if you want to wait for the conversation to continue and gather more information.
 

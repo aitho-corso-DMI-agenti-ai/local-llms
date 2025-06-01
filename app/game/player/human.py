@@ -20,28 +20,40 @@ class HumanPlayer(BaseModel):
     def is_spy(self) -> bool:
         return self._game_role == GameRole.SPY
 
+    def _get_input(self, prompt: str) -> str:
+        return input(prompt).strip()
+
     def make_question(self, state: GameState) -> Question:
         print("Make a question:")
-        to_player = input(f"To which player? (Options: {', '.join(Player)}) ").strip()
-        content = input("What is your question? ").strip()
-        return Question(to_player=Player(to_player), content=content, justification=DEFAULT_JUSTIFICATION)
+        return Question(
+            to_player=Player(self._get_input(f"To which player? (Options: {', '.join(Player)}) ")),
+            content=self._get_input("What is your question? "),
+            justification=DEFAULT_JUSTIFICATION
+        )
 
     def answer(self, state: GameState) -> Answer:
         print("Answer a question:")
-        content = input("What is your answer? ").strip()
-        return Answer(content=content, justification=DEFAULT_JUSTIFICATION)
+        return Answer(
+            content=self._get_input("What is your answer? "),
+            justification=DEFAULT_JUSTIFICATION
+        )
 
     def guess_location(self, state: GameState) -> SpyGuess:
         print("Guess the location:")
-        guessed_location = input(f"Which location do you guess? (Options: {', '.join(Location)}) ").strip()
-        return SpyGuess(guessed_location=Location(guessed_location), justification=DEFAULT_JUSTIFICATION)
+        return SpyGuess(
+            guessed_location=Location(self._get_input(f"Which location do you guess? (Options: {', '.join(Location)}) ")),
+            justification=DEFAULT_JUSTIFICATION
+        )
 
     def guess_spy(self, state: GameState) -> PlayerGuess:
         if self.is_spy():
             return PlayerGuess(accused_player=None, justification=DEFAULT_JUSTIFICATION)
 
         print("Guess the spy:")
-        accused_player = input(f"Which player do you accuse? (Options: {', '.join(Player)}, or press Enter to skip) ").strip()
+        accused_player = self._get_input(f"Which player do you accuse? (Options: {', '.join(Player)}, or press Enter to skip) ")
         if not accused_player:
             return PlayerGuess(accused_player=None, justification=DEFAULT_JUSTIFICATION)
-        return PlayerGuess(accused_player=Player(accused_player), justification=DEFAULT_JUSTIFICATION)
+        return PlayerGuess(
+            accused_player=Player(accused_player),
+            justification=DEFAULT_JUSTIFICATION
+        )

@@ -25,7 +25,9 @@ class VerboseGamePrinter(BaseModel):
         print(f"Location: {str(location)}")
 
     def print_question(self, questioner, question):
-        print(f"[QUESTION] From {questioner.value} to {question.to_player.value}: {question.content}")
+        print(
+            f"[QUESTION] From {questioner.value} to {question.to_player.value}: {question.content}"
+        )
         if self.with_justifications:
             print(f"Justification: {question.justification}")
 
@@ -44,8 +46,10 @@ class VerboseGamePrinter(BaseModel):
         if self.with_justifications:
             print(f"Justification: {guess.justification}")
 
+
 class HumanGamePrinter(BaseModel):
     is_player_spy: bool
+    with_justifications: bool = False
 
     def print_game_info(self, players, spy_name, location):
         print("## Game info")
@@ -56,34 +60,29 @@ class HumanGamePrinter(BaseModel):
             print("You are the Spy!")
 
     def print_question(self, questioner, question):
-        print("-------------")
-        print(f"{questioner.value} asks {question.to_player.value}:")
-        print(f"'{question.content}'")
-        print("-------------")
+        print(f"[QUESTION] {questioner.value} asks {question.to_player.value}: {question.content}")
+        if self.with_justifications:
+            print(f"Justification: {question.justification}")
 
     def print_answer(self, player, answer):
-        print("-------------")
-        print(f"{player.value} responds:")
-        print(f"'{answer.content}'")
-        print("-------------")
+        print(f"[ANSWER] {player.value} responds: {answer.content}")
+        if self.with_justifications:
+            print(f"Justification: {answer.justification}")
 
     def print_spy_guess(self, spy, guess):
         if guess.guessed_location is None:
+            print(f"[SPY GUESS] {spy.name} hasn't got an hint for the Hidden Location, yet...")
             return
 
-        print("-------------")
-        print(f"{spy.name} (Spy) guesses:")
-        print(f"'{guess.guessed_location}'")
-        print(f"Justification: '{guess.justification}'")
-        print("-------------")
+        print(f"[SPY GUESS] {spy.name} (Spy) guesses: {guess.guessed_location}")
+        if self.with_justifications:
+            print(f"Justification: '{guess.justification}'")
 
     def print_player_guess(self, player_name, guess):
         if guess.accused_player is None:
+            print(f"[PLAYER GUESS] {player_name} is not accusing the Spy, yet...")
             return
 
-        print("-------------")
-        print(f"{player_name} guesses:")
-        print(f"'{guess.accused_player}'")
-        print(f"Justification: '{guess.justification}'")
-        print("-------------")
-        
+        print(f"[PLAYER GUESS] {player_name} guesses: {guess.accused_player}")
+        if self.with_justifications:
+            print(f"Justification: '{guess.justification}'")

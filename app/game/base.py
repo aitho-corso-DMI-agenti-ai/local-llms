@@ -76,13 +76,23 @@ class Game(BaseModel):
 
     def check_spy_guess(self, guess: SpyGuess) -> GameResult:
         spy_won = guess.guessed_location == self._location
-        self.printer.print_spy_guess_result(guess, self._location, spy_won)
+        if spy_won:
+            print("The Spy guessed the location and won!")
+        else:
+            print(
+                f"The Spy tried to guess the location, but said {guess.guessed_location} while the location was {self._location}!"
+            )
         return GameResult(spy_won=spy_won)
 
     def check_player_guess(self, guess: PlayerGuess) -> GameResult:
         spy = self.get_spy()
         spy_won = guess.accused_player.value != spy.name
-        self.printer.print_player_guess_result(guess, spy.name, spy_won)
+        if not spy_won:
+            print(f"{spy.name} was the Spy and has been uncovered!")
+        else:
+            print(
+                f"The Spy was {spy.name}, but {guess.accused_player} was accused instead!"
+            )
         return GameResult(spy_won=spy_won)
 
 

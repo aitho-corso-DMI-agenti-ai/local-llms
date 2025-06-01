@@ -14,12 +14,10 @@ class GamePrinter(Protocol):
 
     def print_player_guess(self, player_name, guess): ...
 
-    def print_spy_guess_result(self, guess, actual_location, spy_won): ...
 
-    def print_player_guess_result(self, guess, spy_name, spy_won): ...
+class VerboseGamePrinter(BaseModel):
+    with_justifications: bool = False
 
-
-class VerboseGamePrinter:
     def print_game_info(self, players, spy_name, location):
         print("## Game info")
         print(f"Players: {[str(player_name) for player_name in players.keys()]}")
@@ -27,49 +25,24 @@ class VerboseGamePrinter:
         print(f"Location: {str(location)}")
 
     def print_question(self, questioner, question):
-        print("-------------")
-        print(f"[Game] Question from {questioner.value} to {question.to_player.value}:")
-        print(f"[Game] Content: {question.content}")
-        print(f"[Game] Justification: {question.justification}")
-        print("-------------")
+        print(f"[QUESTION] From {questioner.value} to {question.to_player.value}: {question.content}")
+        if self.with_justifications:
+            print(f"Justification: {question.justification}")
 
     def print_answer(self, player, answer):
-        print("-------------")
-        print(f"[Game] Answer from player {player.value}:")
-        print(f"[Game] Content: {answer.content}")
-        print(f"[Game] Justification: {answer.justification}")
-        print("-------------")
+        print(f"[ANSWER] {player.value}: {answer.content}")
+        if self.with_justifications:
+            print(f"Justification: {answer.justification}")
 
     def print_spy_guess(self, spy, guess):
-        print("-------------")
-        print(f"[Game] Player {spy.name} (Spy) guess:")
-        print(f"[Game] Guessed location: {guess.guessed_location}")
-        print(f"[Game] Justification: {guess.justification}")
-        print("-------------")
+        print(f"[SPY GUESS] From {spy.name} (Spy): {guess.guessed_location}")
+        if self.with_justifications:
+            print(f"Justification: {guess.justification}")
 
     def print_player_guess(self, player_name, guess):
-        print("-------------")
-        print(f"[Game] Player {player_name} guess:")
-        print(f"[Game] Accused player: {guess.accused_player}")
-        print(f"[Game] Justification: {guess.justification}")
-        print("-------------")
-
-    def print_spy_guess_result(self, guess, actual_location, spy_won):
-        if spy_won:
-            print("[Game] The Spy guessed the location and won!")
-        else:
-            print(
-                f"[Game] The Spy tried to guess the location, but said {guess.guessed_location} while the location was {actual_location}!"
-            )
-
-    def print_player_guess_result(self, guess, spy_name, spy_won):
-        if not spy_won:
-            print(f"[Game] {spy_name} was the Spy and has been uncovered!")
-        else:
-            print(
-                f"[Game] The Spy was {spy_name}, but {guess.accused_player} was accused instead!"
-            )
-
+        print(f"[PLAYER GUESS] From player {player_name}: {guess.accused_player}")
+        if self.with_justifications:
+            print(f"Justification: {guess.justification}")
 
 class HumanGamePrinter(BaseModel):
     is_player_spy: bool
@@ -113,19 +86,4 @@ class HumanGamePrinter(BaseModel):
         print(f"'{guess.accused_player}'")
         print(f"Justification: '{guess.justification}'")
         print("-------------")
-
-    def print_spy_guess_result(self, guess, actual_location, spy_won):
-        if spy_won:
-            print("The Spy guessed the location and won!")
-        else:
-            print(
-                f"The Spy tried to guess the location, but said {guess.guessed_location} while the location was {actual_location}!"
-            )
-
-    def print_player_guess_result(self, guess, spy_name, spy_won):
-        if not spy_won:
-            print(f"{spy_name} was the Spy and has been uncovered!")
-        else:
-            print(
-                f"The Spy was {spy_name}, but {guess.accused_player} was accused instead!"
-            )
+        

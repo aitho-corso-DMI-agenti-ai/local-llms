@@ -11,7 +11,7 @@ class AgentPlayer(BaseModel):
     model: str
     name: str
 
-    _game_role: GameRole 
+    _game_role: GameRole
 
     def model_post_init(self, context):
         self._game_role = GameRole.PLAYER
@@ -39,13 +39,25 @@ class AgentPlayer(BaseModel):
             ),
         }
 
+    def __remove_own_name_from_output_structure(self, structure):
+        structure["$defs"]["Player"]["enum"].remove(self.name)
+        return structure
+
+    def __default_options(self):
+        return {"temperature": 1.0}
+
     def make_question(self, state: GameState) -> Question:
         messages = [
             self.__build_system_prompt(state),
             {"role": "user", "content": self.__role_prompt("make_question")},
         ]
         response = chat(
-            model=self.model, messages=messages, format=Question.model_json_schema()
+            model=self.model,
+            messages=messages,
+            format=self.__remove_own_name_from_output_structure(
+                Question.model_json_schema()
+            ),
+            options=self.__default_options(),
         )
 
         return Question.model_validate_json(response.message.content)
@@ -63,7 +75,10 @@ class AgentPlayer(BaseModel):
             },
         ]
         response = chat(
-            model=self.model, messages=messages, format=Question.model_json_schema()
+            model=self.model,
+            messages=messages,
+            format=Answer.model_json_schema(),
+            options=self.__default_options(),
         )
 
         return Answer.model_validate_json(response.message.content)
@@ -77,7 +92,10 @@ class AgentPlayer(BaseModel):
             },
         ]
         response = chat(
-            model=self.model, messages=messages, format=SpyGuess.model_json_schema()
+            model=self.model,
+            messages=messages,
+            format=SpyGuess.model_json_schema(),
+            options=self.__default_options(),
         )
         return SpyGuess.model_validate_json(response.message.content)
 
@@ -90,7 +108,11 @@ class AgentPlayer(BaseModel):
             },
         ]
         response = chat(
-            model=self.model, messages=messages, format=PlayerGuess.model_json_schema()
+            model=self.model,
+            messages=messages,
+            format=self.__remove_own_name_from_output_structure(
+                PlayerGuess.model_json_schema()
+            ),
+            options=self.__default_options(),
         )
         return PlayerGuess.model_validate_json(response.message.content)
-

@@ -35,8 +35,11 @@ class Location(StrEnum):
     Cinema = auto()
     Embassy = auto()
 
+
 class Question(BaseModel):
-    to_player: Player = Field(description="The name of the player you want to question. It is important it is different from you.")
+    to_player: Player = Field(
+        description="The name of the player you want to question. It is important it is different from you."
+    )
     content: str
     justification: str
 
@@ -59,14 +62,16 @@ class Answer(BaseModel):
 
 class SpyGuess(BaseModel):
     guessed_location: Location | None = Field(
-        description="Name of the guessed Hidden Location. Must be null if you don't want to provide any guess at the moment."
+        description="Name of the guessed Hidden Location. Must be null if you don't want to provide any guess at the moment.",
+        default=None,
     )
     justification: str
 
 
 class PlayerGuess(BaseModel):
-    alleged_spy: Player | None= Field(
-        description="Name of the player that you think is the Spy. Must be null if you don't want to provide any guess at the moment."
+    alleged_spy: Player | None = Field(
+        description="Name of the player that you think is the Spy. Must be null if you don't want to provide any guess at the moment.",
+        default=None,
     )
     justification: str
 

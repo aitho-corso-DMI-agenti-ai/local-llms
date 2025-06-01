@@ -4,11 +4,11 @@ from app.game.data import Player
 
 
 def init_players():
-    model = "mistral-nemo:12b"
+    # model = "mistral-nemo:12b"
     # model = "mistral:7b"
     # model = "phi:2.7b"
     # model = "deepseek-r1"
-    # model = "gemma3:1b"
+    model = "gemma3:1b"
 
     players = dict()
     for player_name in Player:

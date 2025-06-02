@@ -1,5 +1,5 @@
-from app.game import Game, VerboseGamePrinter
-
+from app.base import Game
+from app.print import VerboseGamePrinter
 
 def main():
     game = Game(

@@ -1,10 +1,10 @@
 from ollama import chat
 
-from app.game.data import Question, Answer, SpyGuess, PlayerGuess
-from app.game.state import ConversationState
+from app.data import Question, Answer, SpyGuess, PlayerGuess
+from app.state import ConversationState
 
 from pydantic import BaseModel
-from app.game.data import Player, Location
+from app.data import Player, Location
 from typing import Protocol, runtime_checkable
 
 

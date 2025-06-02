@@ -1,6 +1,7 @@
 import sys
 
-from app.game import Game, HumanGamePrinter
+from app.base import Game
+from app.print import HumanGamePrinter
 
 
 def main():

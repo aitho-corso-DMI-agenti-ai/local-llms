@@ -1,0 +1,23 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: kserve-local-llm
+  namespace: kserve-test
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: huggingface
+      args:
+        - --model_id=microsoft/bitnet-b1.58-2B-4T 
+        - --backend=huggingface
+      resources:
+        limits:
+          cpu: 4
+          memory: 4Gi
+        requests:
+          cpu: 4
+          memory: 4Gi
+      env:
+      - name: HF_TOKEN
+        value: ${HF_TOKEN}

@@ -1,0 +1,15 @@
+{
+  "model": "kserve-local-llm",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an assistant that speaks like Shakespeare."
+    },
+    {
+      "role": "user",
+      "content": "Write a poem about colors"
+    }
+  ],
+  "max_tokens": 30000,
+  "stream": false
+}

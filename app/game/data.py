@@ -2,6 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
+
 class GameMessage(BaseModel):
     user: str
     message_text: str
@@ -10,12 +11,22 @@ class GameMessage(BaseModel):
         return f"{self.user}: {self.message_text}"
 
 
+class GameResult(StrEnum):
+    SpyGuessedTheLocation = "Spy guessed the location"
+    WrongPlayerWasAccused = "Wrong player was accused"
+
+    SpyMissedTheLocation = "Spy missed the location"
+    SpyWasUncovered = "Spy was uncovered"
+
+
+
 class Player(StrEnum):
     Lorenzo = "Lorenzo"
     Stefano = "Stefano"
     Davide = "Davide"
     Alessio = "Alessio"
     Michele = "Michele"
+
 
 class Location(StrEnum):
     University = "University"
@@ -28,6 +39,7 @@ class Location(StrEnum):
     Supermarket = "Supermarket"
     Cinema = "Cinema"
     Embassy = "Embassy"
+
 
 class Question(BaseModel):
     to_player: Player = Field(
@@ -62,6 +74,3 @@ class PlayerGuess(BaseModel):
     accused_player: Player | None = Field(default=None)
     justification: str
 
-
-class GameResult(BaseModel):
-    spy_won: bool

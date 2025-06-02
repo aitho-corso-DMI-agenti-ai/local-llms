@@ -30,7 +30,7 @@ class Game(BaseModel):
     _location: Location | None = None
 
     def model_post_init(self, context):
-        self.spy_name = self.spy_name or random.choice(list(Player))
+        self.spy_name = self.human_name or self.spy_name or random.choice(list(Player))
         self._location = random.choice(list(Location))
 
         self.__init_players()

@@ -48,16 +48,12 @@ class VerboseGamePrinter(BaseModel):
 
 
 class HumanGamePrinter(BaseModel):
-    is_player_spy: bool
     with_justifications: bool = False
 
     def print_game_info(self, players, spy_name, location):
         print("## Game info")
         print(f"Players: {[str(player_name) for player_name in players.keys()]}")
-        if not self.is_player_spy:
-            print(f"Location: {str(location)}")
-        else:
-            print("You are the Spy!")
+        print("You are the Spy!")
 
     def print_question(self, questioner, question):
         print(f"[QUESTION] {questioner.value} asks {question.to_player.value}: {question.content}")

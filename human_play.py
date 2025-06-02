@@ -10,8 +10,7 @@ def main():
     game = Game(
         agent_model="gemma3:1b",
         human_name=human_player_name,
-        printer=HumanGamePrinter(is_player_spy=True),
-        spy_name=human_player_name,
+        printer=HumanGamePrinter()
     )
 
     game_result = game.play()

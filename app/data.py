@@ -21,11 +21,11 @@ class GameResult(StrEnum):
 
 
 class Player(StrEnum):
-    Lorenzo = "Lorenzo"
-    Stefano = "Stefano"
-    Davide = "Davide"
-    Alessio = "Alessio"
-    Michele = "Michele"
+    Patrick = "Patrick"
+    Teresa = "Teresa"
+    Grace = "Grace"
+    Kimball = "Kimball"
+    Wayne = "Wayne"
 
 
 class Location(StrEnum):
